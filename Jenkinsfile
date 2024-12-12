@@ -1,18 +1,19 @@
 pipeline {
     agent any
     environment {
-        DOCKER_HOST = '' // Unset DOCKER_HOST to avoid issues
-        DOCKER_USERNAME = 'your-docker-username' // Provide your Docker username
-        DOCKER_PASSWORD = 'your-docker-password' // Provide your Docker password
+        DOCKER_IMAGE = 'node:18-alpine' // Docker image
     }
     stages {
         stage('Docker Login') {
             steps {
                 script {
-                    // If you need to login to Docker registry
-                    sh '''
-                    echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-                    '''
+                    // Using Jenkins credentials (replace 'docker-credentials' with your Jenkins credentials ID)
+                    withCredentials([usernamePassword(credentialsId: 'ZaydGraiet', usernameVariable: 'ZaydGraiet', passwordVariable: 'admin')]) {
+                        // Perform Docker login using the credentials
+                        sh '''
+                        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+                        '''
+                    }
                 }
             }
         }
@@ -20,7 +21,7 @@ pipeline {
         stage('Build') {
             agent {
                 docker {
-                    image 'node:18-alpine' // Docker image
+                    image "${DOCKER_IMAGE}" // Use Docker image
                     reuseNode true
                 }
             }
