@@ -8,7 +8,7 @@ pipeline {
             steps {
                 script {
                     // Using Jenkins credentials (replace 'docker-credentials' with your Jenkins credentials ID)
-                    withCredentials([usernamePassword(credentialsId: 'ZaydGraiet', usernameVariable: 'ZaydGraiet', passwordVariable: 'admin')]) {
+                    withCredentials([usernamePassword(credentialsId: 'zaydgraiet', usernameVariable: 'ZaydGraiet', passwordVariable: 'admin')]) {
                         // Perform Docker login using the credentials
                         sh '''
                         echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
