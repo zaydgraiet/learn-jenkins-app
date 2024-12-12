@@ -1,27 +1,44 @@
 pipeline {
     agent any
     environment {
-        DOCKER_HOST = '' // You can also unset it like this globally, if needed
+        DOCKER_HOST = '' // Unset DOCKER_HOST to avoid issues
+        DOCKER_USERNAME = 'your-docker-username' // Provide your Docker username
+        DOCKER_PASSWORD = 'your-docker-password' // Provide your Docker password
     }
     stages {
-        stage('Checkout') {
+        stage('Docker Login') {
             steps {
-                // Checkout the code from GitHub
-                checkout scm
+                script {
+                    // If you need to login to Docker registry
+                    sh '''
+                    echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+                    '''
+                }
             }
         }
 
         stage('Build') {
-            steps {
-                script {
-                    // Unset DOCKER_HOST before running docker commands
-                    sh 'unset DOCKER_HOST'
-                    
-                    // Now you can run your Docker commands
-                    sh 'docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD'
-                    sh 'docker pull node:18-alpine'
-                    // Add other Docker-related commands as needed
+            agent {
+                docker {
+                    image 'node:18-alpine' // Docker image
+                    reuseNode true
                 }
+            }
+            steps {
+                sh '''
+                echo "Listing files in the workspace:"
+                ls -la
+                echo "Node.js version:"
+                node --version
+                echo "NPM version:"
+                npm --version
+                echo "Installing dependencies..."
+                npm ci
+                echo "Building the project..."
+                npm run build
+                echo "Files after build:"
+                ls -la
+                '''
             }
         }
     }
