@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+    post {
+        always {
+            junit 'test-results/junit.xml'
+        }
+    }
+
     environment {
         NETLIFY_SITE_ID = '9d2a480d-50ea-4307-9549-0b215064d6fa'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
@@ -40,11 +46,6 @@ pipeline {
                     npm test
                 '''
             }
-            post {
-        always {
-            junit 'test-results/junit.xml'
-        }
-    }
         }
 
         stage('Deploy') {
